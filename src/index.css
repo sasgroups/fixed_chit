@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #FCE205;
+  color: #1A1A1A;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
