@@ -9,22 +9,31 @@ const app = express();
 connectDB();
 
 // CORS Configuration - MUST BE BEFORE ROUTES
-app.use(cors({
-  origin: [
-    'https://fixedchiti.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'https://fixed-chit.onrender.com'
-  ],
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://fixedchiti.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://fixed-chit.onrender.com'
+    ];
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('Blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
+};
 
-// Handle preflight OPTIONS requests
-app.options('*', cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
-// Body parser middleware
+// Body parser
 app.use(express.json());
 
 // Log MONGO_URI (remove this in production)
