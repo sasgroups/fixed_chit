@@ -8,9 +8,27 @@ const app = express();
 // Connect to database
 connectDB();
 
-// Middleware
-app.use(cors());
+// CORS Configuration - MUST BE BEFORE ROUTES
+app.use(cors({
+  origin: [
+    'https://fixedchiti.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://fixed-chit.onrender.com'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Handle preflight OPTIONS requests
+app.options('*', cors());
+
+// Body parser middleware
 app.use(express.json());
+
+// Log MONGO_URI (remove this in production)
+console.log('MONGO_URI:', process.env.MONGO_URI);
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -20,7 +38,7 @@ const schemeMemberRoutes = require('./routes/schememembers');
 const installmentRoutes = require('./routes/installments');
 const reportRoutes = require('./routes/reports');
 const memberRoutes = require('./routes/member');
-console.log('MONGO_URI:', process.env.MONGO_URI);
+
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -32,6 +50,9 @@ app.use('/api/member', memberRoutes);
 
 // Basic route
 app.get('/', (req, res) => res.json({ message: 'Chit Fund API' }));
+
+// Health check endpoint (useful for Render)
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
